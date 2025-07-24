@@ -120,8 +120,12 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
 
         // Handle image upload
         if (req.file) {
+            console.log('File uploaded:', req.file);
+            console.log('Uploads directory exists:', fs.existsSync(uploadsDir));
+            console.log('File exists after upload:', fs.existsSync(path.join(uploadsDir, req.file.filename)));
             productData.image = `/uploads/${req.file.filename}`;
         } else {
+            console.log('No file uploaded, using default emoji');
             productData.image = '🛍️'; // Default emoji
         }
 
