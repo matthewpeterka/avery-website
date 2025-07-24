@@ -91,7 +91,7 @@ function displayProducts() {
         
         // Handle image display - check if it's a URL or emoji
         const imageContent = product.image && (product.image.startsWith('http') || product.image.startsWith('/uploads/')) 
-            ? `<img src="${product.image}" alt="${product.title}" onload="removeImageBackground(this)" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" /><span style="display: none;">🛍️</span>`
+            ? `<img src="${product.image}" alt="${product.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" /><span style="display: none;">🛍️</span>`
             : `<span>${product.image || '🛍️'}</span>`;
         
         productCard.innerHTML = `
@@ -169,57 +169,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
-// Function to remove background from images using canvas
-function removeImageBackground(img) {
-    // Create a canvas to process the image
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Set canvas size to match image
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    
-    // Draw the image on canvas
-    ctx.drawImage(img, 0, 0);
-    
-    // Get image data
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-    
-    // Process each pixel to remove white/light backgrounds
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        
-        // Calculate brightness
-        const brightness = (r + g + b) / 3;
-        
-        // If pixel is very light (likely background), make it transparent
-        if (brightness > 240) {
-            data[i + 3] = 0; // Set alpha to 0 (transparent)
-        }
-        // If pixel is moderately light, reduce opacity
-        else if (brightness > 200) {
-            data[i + 3] = Math.max(0, data[i + 3] * 0.3);
-        }
-        // If pixel is light, reduce opacity slightly
-        else if (brightness > 180) {
-            data[i + 3] = Math.max(0, data[i + 3] * 0.7);
-        }
-    }
-    
-    // Put the processed image data back
-    ctx.putImageData(imageData, 0, 0);
-    
-    // Convert canvas to data URL and set as new image source
-    const processedImageUrl = canvas.toDataURL('image/png');
-    img.src = processedImageUrl;
-    
-    // Add some styling to ensure proper display
-    img.style.objectFit = 'contain';
-    img.style.background = 'transparent';
-}
+
 
 // Export functions for potential future use
 if (typeof module !== 'undefined' && module.exports) {
@@ -227,7 +177,6 @@ if (typeof module !== 'undefined' && module.exports) {
         topPicks,
         displayProducts,
         filterProducts,
-        searchProducts,
-        removeImageBackground
+        searchProducts
     };
 } 
