@@ -3,26 +3,23 @@ const Product = require('../models/Product');
 const { auth, adminAuth } = require('../middleware/auth');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
-const { S3Client } = require('@aws-sdk/client-s3');
+const AWS = require('aws-sdk');
 const path = require('path');
 
 const router = express.Router();
 
 // AWS S3 configuration
-const s3Client = new S3Client({
-    region: process.env.AWS_REGION || 'us-east-1',
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    }
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION || 'us-east-1'
 });
 
 // Multer configuration for S3 uploads
 const upload = multer({
     storage: multerS3({
-        s3: s3Client,
+        s3: s3,
         bucket: process.env.AWS_S3_BUCKET || 'avery-website-images',
-        acl: 'public-read',
         key: function (req, file, cb) {
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
             const filename = `uploads/${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`;
