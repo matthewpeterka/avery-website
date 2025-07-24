@@ -39,7 +39,15 @@ function initializeApp() {
     
     // Check what pages are available on initialization
     const allPages = document.querySelectorAll('.page');
-    console.log('Pages available on init:', Array.from(allPages).map(p => p.id));
+    const pageIds = Array.from(allPages).map(p => p.id);
+    console.log('Pages available on init:', pageIds);
+    
+    // Check if addProductPage exists specifically
+    const addProductPage = document.getElementById('addProductPage');
+    console.log('addProductPage element exists:', !!addProductPage);
+    if (addProductPage) {
+        console.log('addProductPage classes:', addProductPage.className);
+    }
 }
 
 function setupEventListeners() {
@@ -208,15 +216,21 @@ function navigateToPage(page) {
         console.error('Page not found:', page);
         // Let's check what pages are actually available
         const allPages = document.querySelectorAll('.page');
-        console.log('Available pages:', Array.from(allPages).map(p => p.id));
+        const pageIds = Array.from(allPages).map(p => p.id);
+        console.log('Available pages:', pageIds);
+        console.log('Looking for page ID:', `${page}Page`);
         
         // Try to find the page using a different approach
         const pageElement = Array.from(allPages).find(p => p.id === `${page}Page`);
         if (pageElement) {
             console.log('Found page using alternative method:', pageElement);
+            console.log('Page element classes before:', pageElement.className);
             pageElement.classList.add('active');
+            console.log('Page element classes after:', pageElement.className);
             updatePageTitle(page);
             loadPageData(page);
+        } else {
+            console.error('Page not found even with alternative method');
         }
     }
 }
