@@ -38,6 +38,16 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'Avery\'s Shopping Guide API is running' });
 });
 
+// IP check endpoint
+app.get('/api/ip', (req, res) => {
+    const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    res.json({ 
+        clientIP: clientIP,
+        headers: req.headers,
+        message: 'This shows the IP address making the request'
+    });
+});
+
 // Serve main website routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../index.html'));
