@@ -340,6 +340,8 @@ function updateCategoryChart(categoryStats) {
         }
     });
     
+
+    
     chartHTML += `
         <div class="pie-slice" style="
             background: conic-gradient(${conicGradient});
