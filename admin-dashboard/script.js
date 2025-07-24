@@ -301,7 +301,7 @@ function updateStatsDisplay(stats) {
     document.getElementById('totalProducts').textContent = stats.totalProducts;
     document.getElementById('activeProducts').textContent = stats.activeProducts;
     document.getElementById('topPicks').textContent = stats.topPicks;
-    document.getElementById('totalUsers').textContent = stats.totalUsers;
+    document.getElementById('totalCategories').textContent = stats.categoryStats ? stats.categoryStats.length : 0;
 }
 
 function updateCategoryChart(categoryStats) {
