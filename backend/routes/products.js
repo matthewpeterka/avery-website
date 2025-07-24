@@ -16,14 +16,11 @@ if (!fs.existsSync(uploadsDir)) {
 // Multer configuration for file uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        console.log('Multer destination called with:', uploadsDir);
-        console.log('Uploads directory exists:', fs.existsSync(uploadsDir));
         cb(null, uploadsDir);
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         const filename = file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname);
-        console.log('Multer filename generated:', filename);
         cb(null, filename);
     }
 });
@@ -33,7 +30,6 @@ const upload = multer({
         fileSize: 5 * 1024 * 1024 // 5MB limit
     },
     fileFilter: function (req, file, cb) {
-        console.log('Multer fileFilter called with:', file.originalname, file.mimetype);
         if (file.mimetype.startsWith('image/')) {
             cb(null, true);
         } else {
@@ -109,21 +105,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create product (admin only)
-router.post('/', adminAuth, (req, res, next) => {
-    console.log('Product creation request received');
-    console.log('Request body:', req.body);
-    console.log('Request files:', req.files);
-    
-    upload.single('image')(req, res, (err) => {
-        if (err) {
-            console.error('Multer error:', err);
-            return res.status(400).json({ error: err.message });
-        }
-        console.log('Multer processing completed');
-        console.log('File after multer:', req.file);
-        next();
-    });
-}, async (req, res) => {
+router.post('/', adminAuth, upload.single('image'), async (req, res) => {
     try {
         const productData = {
             title: req.body.title,
@@ -139,12 +121,8 @@ router.post('/', adminAuth, (req, res, next) => {
 
         // Handle image upload
         if (req.file) {
-            console.log('File uploaded:', req.file);
-            console.log('Uploads directory exists:', fs.existsSync(uploadsDir));
-            console.log('File exists after upload:', fs.existsSync(path.join(uploadsDir, req.file.filename)));
             productData.image = `/uploads/${req.file.filename}`;
         } else {
-            console.log('No file uploaded, using default emoji');
             productData.image = '🛍️'; // Default emoji
         }
 
