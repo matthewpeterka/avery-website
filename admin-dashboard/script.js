@@ -879,7 +879,7 @@ async function loadCategories() {
             updateCategoryFilter(categories);
             
             // Also load products to get product counts
-            const productsResponse = await fetch(`${API_BASE_URL}/products?limit=1000`, {
+            const productsResponse = await fetch(`${API_BASE_URL}/admin/products?limit=1000`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
@@ -887,8 +887,12 @@ async function loadCategories() {
             
             if (productsResponse.ok) {
                 const productsData = await productsResponse.json();
-                displayCategories(categories, productsData.products);
+                console.log('Categories - Products loaded:', productsData);
+                const products = productsData.products || productsData;
+                console.log('Categories - Final products array:', products);
+                displayCategories(categories, products);
             } else {
+                console.log('Categories - Failed to load products');
                 displayCategories(categories, []);
             }
         }
@@ -917,6 +921,8 @@ function displayCategories(categories, products = []) {
     const container = document.getElementById('categoriesList');
     if (!container) return;
 
+    console.log('displayCategories called with:', { categories, productsCount: products.length });
+
     if (categories.length === 0) {
         container.innerHTML = '<div class="empty-state">No categories found</div>';
         return;
@@ -927,6 +933,7 @@ function displayCategories(categories, products = []) {
         // Get products in this category
         const categoryProducts = products.filter(p => p.category === category && p.isActive);
         const productCount = categoryProducts.length;
+        console.log(`Category ${category}: ${productCount} products`);
         
         // Create product list HTML
         let productsHtml = '';
@@ -985,7 +992,7 @@ function filterByCategory(category) {
 async function loadTags() {
     try {
         // Load products to extract tags
-        const response = await fetch(`${API_BASE_URL}/products?limit=1000`, {
+        const response = await fetch(`${API_BASE_URL}/admin/products?limit=1000`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
             }
@@ -993,7 +1000,7 @@ async function loadTags() {
         
         if (response.ok) {
             const data = await response.json();
-            const products = data.products || [];
+            const products = data.products || data || [];
             
             // Extract all unique tags from products
             const allTags = new Set();
