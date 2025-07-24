@@ -2,30 +2,31 @@ const express = require('express');
 const Product = require('../models/Product');
 const { auth, adminAuth } = require('../middleware/auth');
 const multer = require('multer');
+const multerS3 = require('multer-s3');
+const AWS = require('aws-sdk');
 const path = require('path');
-const fs = require('fs');
 
 const router = express.Router();
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Multer configuration for file uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadsDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const filename = file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname);
-        cb(null, filename);
-    }
+// AWS S3 configuration
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION || 'us-east-1'
 });
-const upload = multer({ 
-    storage: storage,
+
+// Multer configuration for S3 uploads
+const upload = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_S3_BUCKET || 'avery-website-images',
+        acl: 'public-read',
+        key: function (req, file, cb) {
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            const filename = `uploads/${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`;
+            cb(null, filename);
+        }
+    }),
     limits: {
         fileSize: 5 * 1024 * 1024 // 5MB limit
     },
@@ -121,7 +122,7 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
 
         // Handle image upload
         if (req.file) {
-            productData.image = `/uploads/${req.file.filename}`;
+            productData.image = req.file.location; // S3 URL
         } else {
             productData.image = '🛍️'; // Default emoji
         }
