@@ -319,6 +319,7 @@
                         <div class="form-group">
                             <label for="editProductCategory">Category *</label>
                             <select id="editProductCategory" name="category" required>
+                                <option value="">Select Category</option>
                                 <option value="Tech">Tech</option>
                                 <option value="Beauty">Beauty</option>
                                 <option value="Wellness">Wellness</option>
@@ -330,32 +331,62 @@
                             </select>
                         </div>
                     </div>
+
                     <div class="form-group">
                         <label for="editProductDescription">Description *</label>
                         <textarea id="editProductDescription" name="description" rows="4" required></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="editProductImage">Product Image</label>
-                        <div class="image-upload-container">
-                            <input type="file" id="editProductImageFile" name="imageFile" accept="image/*" style="display: none;">
-                            <button type="button" id="editUploadImageBtn" class="btn btn-secondary">Choose Image</button>
-                            <span id="editImageFileName" class="image-file-name"></span>
-                        </div>
-                        <div class="image-preview" id="editImagePreview" style="display: none;">
-                            <img id="editPreviewImg" src="" alt="Preview">
-                        </div>
-                        <small class="form-help">Upload a PNG, JPG, or GIF (max 5MB). Leave empty to keep current image.</small>
-                    </div>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="editProductPrice">Price *</label>
-                            <input type="text" id="editProductPrice" name="price" required>
+                            <input type="text" id="editProductPrice" name="price" placeholder="$XX.XX" required>
                         </div>
                         <div class="form-group">
                             <label for="editProductLink">Product Link *</label>
                             <input type="url" id="editProductLink" name="link" required>
                         </div>
                     </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editProductImage">Product Image</label>
+                            <div class="image-upload-container">
+                                <input type="file" id="editProductImageFile" name="imageFile" accept="image/*" style="display: none;">
+                                <button type="button" id="editUploadImageBtn" class="btn btn-secondary">Choose Image</button>
+                                <span id="editImageFileName" class="image-file-name"></span>
+                            </div>
+                            <div class="image-preview" id="editImagePreview" style="display: none;">
+                                <img id="editPreviewImg" src="" alt="Preview">
+                            </div>
+                            <small class="form-help">Upload a PNG, JPG, or GIF (max 5MB). Leave empty to keep current image.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductRank">Rank</label>
+                            <input type="number" id="editProductRank" name="rank" min="0" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editProductTags">Tags (comma-separated)</label>
+                        <input type="text" id="editProductTags" name="tags" placeholder="tag1, tag2, tag3">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="editIsTopPick" name="isTopPick">
+                                Mark as Top Pick
+                            </label>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="editIsActive" name="isActive" checked>
+                                Active Product
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Update Product</button>
                         <button type="button" class="btn btn-secondary modal-close">Cancel</button>

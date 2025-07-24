@@ -536,6 +536,16 @@ async function editProduct(productId) {
     document.getElementById('editProductDescription').value = product.description;
     document.getElementById('editProductPrice').value = product.price;
     document.getElementById('editProductLink').value = product.link;
+    document.getElementById('editProductRank').value = product.rank || 0;
+    document.getElementById('editProductTags').value = product.tags ? product.tags.join(', ') : '';
+    document.getElementById('editIsTopPick').checked = product.isTopPick || false;
+    document.getElementById('editIsActive').checked = product.isActive !== false; // Default to true if not set
+
+    // Clear any previous image preview
+    const imagePreview = document.getElementById('editImagePreview');
+    const imageFileName = document.getElementById('editImageFileName');
+    if (imagePreview) imagePreview.style.display = 'none';
+    if (imageFileName) imageFileName.textContent = '';
 
     // Show modal
     document.getElementById('editModal').style.display = 'flex';
@@ -554,6 +564,10 @@ async function handleEditProduct(e) {
     formData.append('description', document.getElementById('editProductDescription').value);
     formData.append('price', document.getElementById('editProductPrice').value);
     formData.append('link', document.getElementById('editProductLink').value);
+    formData.append('rank', document.getElementById('editProductRank').value);
+    formData.append('tags', document.getElementById('editProductTags').value);
+    formData.append('isTopPick', document.getElementById('editIsTopPick').checked);
+    formData.append('isActive', document.getElementById('editIsActive').checked);
     
     // Add image file if selected
     if (imageFile) {
