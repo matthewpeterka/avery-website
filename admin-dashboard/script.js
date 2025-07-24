@@ -922,12 +922,9 @@ async function loadCategories() {
             
             if (productsResponse.ok) {
                 const productsData = await productsResponse.json();
-                console.log('Categories - Products loaded:', productsData);
                 const products = productsData.products || productsData;
-                console.log('Categories - Final products array:', products);
                 displayCategories(categories, products);
             } else {
-                console.log('Categories - Failed to load products');
                 displayCategories(categories, []);
             }
         }
@@ -956,8 +953,6 @@ function displayCategories(categories, products = []) {
     const container = document.getElementById('categoriesList');
     if (!container) return;
 
-    console.log('displayCategories called with:', { categories, productsCount: products.length });
-
     if (categories.length === 0) {
         container.innerHTML = '<div class="empty-state">No categories found</div>';
         return;
@@ -968,7 +963,6 @@ function displayCategories(categories, products = []) {
         // Get products in this category
         const categoryProducts = products.filter(p => p.category === category && p.isActive);
         const productCount = categoryProducts.length;
-        console.log(`Category ${category}: ${productCount} products`);
         
         // Create product list HTML
         let productsHtml = '';
