@@ -21,6 +21,16 @@ app.use(express.static(path.join(__dirname, '..')));
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/avery-website', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    ssl: true,
+    sslValidate: false,
+    tls: true,
+    tlsAllowInvalidCertificates: true,
+    tlsInsecure: true,
+    directConnection: false,
+    serverSelectionTimeoutMS: 30000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 10,
+    minPoolSize: 1,
 })
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
