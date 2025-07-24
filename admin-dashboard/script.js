@@ -827,9 +827,11 @@ async function loadCategories() {
         if (response.ok) {
             const categories = await response.json();
             updateCategoryFilter(categories);
+            displayCategories(categories);
         }
     } catch (error) {
         console.error('Error loading categories:', error);
+        displayCategories([]);
     }
 }
 
@@ -846,6 +848,53 @@ function updateCategoryFilter(categories) {
         option.textContent = category;
         filter.appendChild(option);
     });
+}
+
+function displayCategories(categories) {
+    const container = document.getElementById('categoriesList');
+    if (!container) return;
+
+    if (categories.length === 0) {
+        container.innerHTML = '<div class="empty-state">No categories found</div>';
+        return;
+    }
+
+    let html = '<div class="categories-grid">';
+    categories.forEach(category => {
+        // Count products in this category
+        const productCount = allProducts.filter(p => p.category === category && p.isActive).length;
+        
+        html += `
+            <div class="category-card">
+                <div class="category-header">
+                    <h3>${category}</h3>
+                    <span class="product-count">${productCount} products</span>
+                </div>
+                <div class="category-actions">
+                    <button class="btn btn-secondary" onclick="filterByCategory('${category}')">
+                        View Products
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+function filterByCategory(category) {
+    // Navigate to products page and filter by category
+    navigateToPage('products');
+    setTimeout(() => {
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter) {
+            categoryFilter.value = category;
+            // Trigger the filter
+            const event = new Event('change');
+            categoryFilter.dispatchEvent(event);
+        }
+    }, 100);
 }
 
 // Export function
