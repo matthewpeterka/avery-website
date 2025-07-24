@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = 'http://localhost:3000/api'; // Change this to your deployed backend URL
+const API_BASE_URL = 'https://avery-website-backend.onrender.com/api'; // Deployed backend URL
 
 // Fallback data in case API is not available
 const fallbackTopPicks = [

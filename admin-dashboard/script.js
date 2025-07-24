@@ -1,6 +1,6 @@
 // Configuration
-const API_BASE_URL = 'http://localhost:3000/api'; // Change this to your deployed backend URL
-const ADMIN_BASE_URL = 'http://localhost:3000'; // Change this to your deployed backend URL
+const API_BASE_URL = 'https://avery-website-backend.onrender.com/api'; // Deployed backend URL
+const ADMIN_BASE_URL = 'https://avery-website-backend.onrender.com'; // Deployed backend URL
 
 // State management
 let currentUser = null;
