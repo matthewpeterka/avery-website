@@ -97,12 +97,20 @@ function setupEventListeners() {
         exportBtn.addEventListener('click', handleExport);
     }
 
-    // Image upload
+    // Image upload for add product
     const uploadImageBtn = document.getElementById('uploadImageBtn');
     const productImageFile = document.getElementById('productImageFile');
     if (uploadImageBtn && productImageFile) {
         uploadImageBtn.addEventListener('click', () => productImageFile.click());
         productImageFile.addEventListener('change', handleImageUpload);
+    }
+
+    // Image upload for edit product
+    const editUploadImageBtn = document.getElementById('editUploadImageBtn');
+    const editProductImageFile = document.getElementById('editProductImageFile');
+    if (editUploadImageBtn && editProductImageFile) {
+        editUploadImageBtn.addEventListener('click', () => editProductImageFile.click());
+        editProductImageFile.addEventListener('change', handleEditImageUpload);
     }
 }
 
@@ -205,8 +213,15 @@ function navigateToPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
 
     // Show selected page - use stored reference
-    // Handle the special case for add-product -> addProductPage
-    const pageId = page === 'add-product' ? 'addProductPage' : `${page}Page`;
+    // Handle special cases for page mapping
+    let pageId;
+    if (page === 'add-product') {
+        pageId = 'addProductPage';
+    } else if (page === 'top-picks') {
+        pageId = 'topPicksPage';
+    } else {
+        pageId = `${page}Page`;
+    }
     const pageElement = pageElements[pageId];
     
     if (pageElement) {
@@ -530,22 +545,28 @@ async function handleEditProduct(e) {
     e.preventDefault();
     
     const productId = document.getElementById('editProductId').value;
-    const productData = {
-        title: document.getElementById('editProductTitle').value,
-        category: document.getElementById('editProductCategory').value,
-        description: document.getElementById('editProductDescription').value,
-        price: document.getElementById('editProductPrice').value,
-        link: document.getElementById('editProductLink').value
-    };
+    const imageFile = document.getElementById('editProductImageFile').files[0];
+    
+    // Create FormData for multipart/form-data submission
+    const formData = new FormData();
+    formData.append('title', document.getElementById('editProductTitle').value);
+    formData.append('category', document.getElementById('editProductCategory').value);
+    formData.append('description', document.getElementById('editProductDescription').value);
+    formData.append('price', document.getElementById('editProductPrice').value);
+    formData.append('link', document.getElementById('editProductLink').value);
+    
+    // Add image file if selected
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
 
     try {
         const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
             },
-            body: JSON.stringify(productData)
+            body: formData
         });
 
         if (response.ok) {
@@ -735,6 +756,38 @@ function handleImageUpload(e) {
     reader.onload = function(e) {
         const preview = document.getElementById('imagePreview');
         const previewImg = document.getElementById('previewImg');
+        previewImg.src = e.target.result;
+        preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+// Edit image upload handler
+function handleEditImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file (PNG, JPG, GIF)');
+        return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        return;
+    }
+
+    // Show file name
+    const fileName = document.getElementById('editImageFileName');
+    fileName.textContent = file.name;
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById('editImagePreview');
+        const previewImg = document.getElementById('editPreviewImg');
         previewImg.src = e.target.result;
         preview.style.display = 'block';
     };
