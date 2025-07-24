@@ -14,8 +14,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the main website
+// Serve static files from the main website (root directory)
 app.use(express.static(path.join(__dirname, '..')));
+app.use('/styles.css', express.static(path.join(__dirname, '../styles.css')));
+app.use('/script.js', express.static(path.join(__dirname, '../script.js')));
+app.use('/products.js', express.static(path.join(__dirname, '../products.js')));
+app.use('/images', express.static(path.join(__dirname, '../images')));
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/avery-website', {
@@ -88,6 +92,8 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    console.log(`Main website: http://localhost:${PORT}`);
-    console.log(`Admin dashboard: http://localhost:${PORT}/admin`);
+    if (process.env.NODE_ENV !== 'production') {
+        console.log(`Main website: http://localhost:${PORT}`);
+        console.log(`Admin dashboard: http://localhost:${PORT}/admin`);
+    }
 }); 

@@ -175,21 +175,29 @@ function showDashboard() {
 
 // Navigation functions
 function navigateToPage(page) {
+    console.log('Navigating to page:', page);
+    
     // Update active menu item
     document.querySelectorAll('.menu-item').forEach(item => {
         item.classList.remove('active');
     });
-    document.querySelector(`[data-page="${page}"]`).classList.add('active');
+    const menuItem = document.querySelector(`[data-page="${page}"]`);
+    if (menuItem) {
+        menuItem.classList.add('active');
+    }
 
     // Hide all pages
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
 
     // Show selected page
     const targetPage = document.getElementById(`${page}Page`);
+    console.log('Target page element:', targetPage);
     if (targetPage) {
         targetPage.classList.add('active');
         updatePageTitle(page);
         loadPageData(page);
+    } else {
+        console.error('Page not found:', page);
     }
 }
 
