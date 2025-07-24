@@ -480,6 +480,17 @@ function handleCategoryFilter(e) {
 async function handleAddProduct(e) {
     e.preventDefault();
     
+    const isTopPick = e.target.isTopPick.checked;
+    
+    // Check top picks limit before submitting
+    if (isTopPick) {
+        const currentTopPicks = allProducts.filter(p => p.isTopPick).length;
+        if (currentTopPicks >= 6) {
+            alert('Maximum of 6 top picks allowed. Please remove an existing top pick first.');
+            return;
+        }
+    }
+    
     const formData = new FormData();
     
     // Add basic form data
@@ -490,7 +501,7 @@ async function handleAddProduct(e) {
     formData.append('category', e.target.category.value);
     formData.append('rank', e.target.rank.value || '0');
     formData.append('tags', e.target.tags.value);
-    formData.append('isTopPick', e.target.isTopPick.checked);
+    formData.append('isTopPick', isTopPick);
     formData.append('isActive', e.target.isActive.checked);
     
     // Add image file if selected
@@ -755,6 +766,8 @@ async function updateTopPicksOrder() {
         });
 
         if (response.ok) {
+            const updatedTopPicks = await response.json();
+            
             // Update the rank numbers displayed
             items.forEach((item, index) => {
                 const rankElement = item.querySelector('.pick-rank');
@@ -762,13 +775,26 @@ async function updateTopPicksOrder() {
                     rankElement.textContent = `#${index + 1}`;
                 }
             });
+            
+            // Update the global products array to reflect the new order
+            updatedTopPicks.forEach((updatedProduct, index) => {
+                const existingProductIndex = allProducts.findIndex(p => p._id === updatedProduct._id);
+                if (existingProductIndex !== -1) {
+                    allProducts[existingProductIndex] = { ...allProducts[existingProductIndex], ...updatedProduct };
+                }
+            });
+            
+            console.log('Top picks order updated successfully');
         } else {
-            console.error('Failed to update top picks order');
+            const error = await response.json();
+            console.error('Failed to update top picks order:', error);
+            alert('Failed to update order. Please try again.');
             // Reload to show original order
             loadTopPicks();
         }
     } catch (error) {
         console.error('Error updating top picks order:', error);
+        alert('Network error. Please try again.');
         // Reload to show original order
         loadTopPicks();
     }

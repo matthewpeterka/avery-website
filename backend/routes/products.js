@@ -88,7 +88,7 @@ router.get('/top-picks', async (req, res) => {
             isTopPick: true 
         })
         .sort({ rank: -1 })
-        .limit(5);
+        .limit(6);
         
         res.json(topPicks);
     } catch (error) {
@@ -131,6 +131,14 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
             isActive: req.body.isActive === 'true'
         };
 
+        // Check if trying to add as top pick and validate limit
+        if (productData.isTopPick) {
+            const currentTopPicks = await Product.countDocuments({ isTopPick: true });
+            if (currentTopPicks >= 6) {
+                return res.status(400).json({ error: 'Maximum of 6 top picks allowed. Please remove an existing top pick first.' });
+            }
+        }
+
         // Handle image upload
         if (req.file) {
             productData.image = await uploadToS3(req.file); // S3 URL
@@ -162,6 +170,17 @@ router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
             isTopPick: req.body.isTopPick === 'true',
             isActive: req.body.isActive === 'true'
         };
+
+        // Check if trying to add as top pick and validate limit
+        if (updateData.isTopPick) {
+            const currentTopPicks = await Product.countDocuments({ isTopPick: true });
+            const isCurrentlyTopPick = await Product.findById(req.params.id).then(p => p?.isTopPick);
+            
+            // Only check limit if this product wasn't already a top pick
+            if (!isCurrentlyTopPick && currentTopPicks >= 6) {
+                return res.status(400).json({ error: 'Maximum of 6 top picks allowed. Please remove an existing top pick first.' });
+            }
+        }
 
         // Handle image upload if new image is provided
         if (req.file) {
@@ -266,7 +285,7 @@ router.put('/top-picks/reorder', adminAuth, async (req, res) => {
             isTopPick: true 
         })
         .sort({ rank: 1 })
-        .limit(5);
+        .limit(6);
 
         res.json(topPicks);
     } catch (error) {

@@ -47,6 +47,15 @@ const fallbackTopPicks = [
         image: "🔋",
         link: "https://bestbuy.com/sku/example5",
         category: "Tech"
+    },
+    {
+        id: 6,
+        title: "Yoga Mat",
+        description: "Premium non-slip yoga mat perfect for home workouts and studio sessions. Eco-friendly materials and comfortable cushioning.",
+        price: "$29.99",
+        image: "🧘‍♀️",
+        link: "https://lululemon.com/product/example6",
+        category: "Fitness"
     }
 ];
 
