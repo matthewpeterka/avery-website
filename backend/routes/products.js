@@ -149,11 +149,28 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
 });
 
 // Update product (admin only)
-router.put('/:id', adminAuth, async (req, res) => {
+router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
     try {
+        const updateData = {
+            title: req.body.title,
+            description: req.body.description,
+            price: req.body.price,
+            link: req.body.link,
+            category: req.body.category,
+            rank: parseInt(req.body.rank) || 0,
+            tags: req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [],
+            isTopPick: req.body.isTopPick === 'true',
+            isActive: req.body.isActive === 'true'
+        };
+
+        // Handle image upload if new image is provided
+        if (req.file) {
+            updateData.image = await uploadToS3(req.file);
+        }
+
         const product = await Product.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             { new: true, runValidators: true }
         );
         
