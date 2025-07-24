@@ -949,7 +949,8 @@ function displayCategories(categories, products = []) {
                 `;
             });
             if (categoryProducts.length > 3) {
-                productsHtml += `<div class="more-products">+${categoryProducts.length - 3} more</div>`;
+                const moreCount = categoryProducts.length - 3;
+                productsHtml += `<div class="more-products">+${moreCount} more ${moreCount === 1 ? 'product' : 'products'}</div>`;
             }
             productsHtml += '</div>';
         }
@@ -958,7 +959,7 @@ function displayCategories(categories, products = []) {
             <div class="category-card">
                 <div class="category-header">
                     <h3>${category}</h3>
-                    <span class="product-count">${productCount} products</span>
+                    <span class="product-count">${productCount} ${productCount === 1 ? 'product' : 'products'}</span>
                 </div>
                 ${productsHtml}
                 <div class="category-actions">
@@ -1058,7 +1059,8 @@ function displayTags(tags, products = []) {
                 `;
             });
             if (tagProducts.length > 3) {
-                productsHtml += `<div class="more-products">+${tagProducts.length - 3} more</div>`;
+                const moreCount = tagProducts.length - 3;
+                productsHtml += `<div class="more-products">+${moreCount} more ${moreCount === 1 ? 'product' : 'products'}</div>`;
             }
             productsHtml += '</div>';
         }
@@ -1067,7 +1069,7 @@ function displayTags(tags, products = []) {
             <div class="tag-card">
                 <div class="tag-header">
                     <h3>#${tag}</h3>
-                    <span class="product-count">${productCount} products</span>
+                    <span class="product-count">${productCount} ${productCount === 1 ? 'product' : 'products'}</span>
                 </div>
                 ${productsHtml}
                 <div class="tag-actions">
