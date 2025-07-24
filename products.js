@@ -93,7 +93,10 @@ function displayProducts() {
 
     productsGrid.innerHTML = '';
 
-    topPicks.forEach((product, index) => {
+    // Sort by rank (ascending order - rank 1 first)
+    const sortedTopPicks = [...topPicks].sort((a, b) => (a.rank || 0) - (b.rank || 0));
+
+    sortedTopPicks.forEach((product, index) => {
         const productCard = document.createElement('div');
         productCard.className = 'product-card';
         productCard.style.animationDelay = `${index * 0.1}s`;
@@ -153,7 +156,8 @@ function filterProducts(category) {
         ? topPicks 
         : topPicks.filter(product => product.category.toLowerCase() === category.toLowerCase());
     
-    return filteredProducts;
+    // Sort by rank (ascending order - rank 1 first)
+    return filteredProducts.sort((a, b) => (a.rank || 0) - (b.rank || 0));
 }
 
 // Function to search products (for future use)
@@ -164,7 +168,8 @@ function searchProducts(query) {
         product.category.toLowerCase().includes(query.toLowerCase())
     );
     
-    return searchResults;
+    // Sort by rank (ascending order - rank 1 first)
+    return searchResults.sort((a, b) => (a.rank || 0) - (b.rank || 0));
 }
 
 // Initialize products when the page loads

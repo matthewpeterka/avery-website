@@ -659,8 +659,11 @@ function displayTopPicks(topPicks) {
         return;
     }
 
+    // Sort by rank (ascending order - rank 1 first)
+    const sortedTopPicks = [...topPicks].sort((a, b) => (a.rank || 0) - (b.rank || 0));
+
     let html = '';
-    topPicks.forEach((product, index) => {
+    sortedTopPicks.forEach((product, index) => {
         // Add $ to price if it doesn't already have one
         const displayPrice = product.price && !product.price.startsWith('$') ? `$${product.price}` : product.price;
         
