@@ -195,8 +195,8 @@ function navigateToPage(page) {
     // Hide all pages
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
 
-    // Show selected page
-    const targetPage = document.getElementById(`${page}Page`);
+    // Show selected page - use querySelector instead of getElementById
+    const targetPage = document.querySelector(`#${page}Page`);
     console.log('Target page element:', targetPage);
     if (targetPage) {
         console.log('Adding active class to page');
@@ -209,6 +209,15 @@ function navigateToPage(page) {
         // Let's check what pages are actually available
         const allPages = document.querySelectorAll('.page');
         console.log('Available pages:', Array.from(allPages).map(p => p.id));
+        
+        // Try to find the page using a different approach
+        const pageElement = Array.from(allPages).find(p => p.id === `${page}Page`);
+        if (pageElement) {
+            console.log('Found page using alternative method:', pageElement);
+            pageElement.classList.add('active');
+            updatePageTitle(page);
+            loadPageData(page);
+        }
     }
 }
 
