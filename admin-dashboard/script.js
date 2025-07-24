@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
+    console.log('Initializing app...');
+    
     // Check if user is already logged in
     const token = localStorage.getItem('adminToken');
     if (token) {
@@ -34,6 +36,10 @@ function initializeApp() {
 
     // Event listeners
     setupEventListeners();
+    
+    // Check what pages are available on initialization
+    const allPages = document.querySelectorAll('.page');
+    console.log('Pages available on init:', Array.from(allPages).map(p => p.id));
 }
 
 function setupEventListeners() {
@@ -193,11 +199,16 @@ function navigateToPage(page) {
     const targetPage = document.getElementById(`${page}Page`);
     console.log('Target page element:', targetPage);
     if (targetPage) {
+        console.log('Adding active class to page');
         targetPage.classList.add('active');
+        console.log('Page classes after adding active:', targetPage.className);
         updatePageTitle(page);
         loadPageData(page);
     } else {
         console.error('Page not found:', page);
+        // Let's check what pages are actually available
+        const allPages = document.querySelectorAll('.page');
+        console.log('Available pages:', Array.from(allPages).map(p => p.id));
     }
 }
 
