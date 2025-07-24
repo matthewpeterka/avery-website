@@ -1,8 +1,34 @@
 const express = require('express');
 const Product = require('../models/Product');
 const { auth, adminAuth } = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
 
 const router = express.Router();
+
+// Multer configuration for file uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed!'), false);
+        }
+    }
+});
 
 // Get all products (public)
 router.get('/', async (req, res) => {
@@ -71,9 +97,28 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create product (admin only)
-router.post('/', adminAuth, async (req, res) => {
+router.post('/', adminAuth, upload.single('image'), async (req, res) => {
     try {
-        const product = new Product(req.body);
+        const productData = {
+            title: req.body.title,
+            description: req.body.description,
+            price: req.body.price,
+            link: req.body.link,
+            category: req.body.category,
+            rank: parseInt(req.body.rank) || 0,
+            tags: req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [],
+            isTopPick: req.body.isTopPick === 'true',
+            isActive: req.body.isActive === 'true'
+        };
+
+        // Handle image upload
+        if (req.file) {
+            productData.image = `/uploads/${req.file.filename}`;
+        } else {
+            productData.image = '🛍️'; // Default emoji
+        }
+
+        const product = new Product(productData);
         await product.save();
         
         res.status(201).json(product);

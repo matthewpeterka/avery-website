@@ -27,8 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
-    console.log('Initializing app...');
-    
     // Check if user is already logged in
     const token = localStorage.getItem('adminToken');
     if (token) {
@@ -40,23 +38,11 @@ function initializeApp() {
     // Event listeners
     setupEventListeners();
     
-    // Check what pages are available on initialization and store references
-    const allPages = document.querySelectorAll('.page');
-    const pageIds = Array.from(allPages).map(p => p.id);
-    console.log('Pages available on init:', pageIds);
-    
     // Store references to all pages
+    const allPages = document.querySelectorAll('.page');
     allPages.forEach(page => {
         pageElements[page.id] = page;
     });
-    console.log('Stored page elements:', Object.keys(pageElements));
-    
-    // Check if addProductPage exists specifically
-    const addProductPage = document.getElementById('addProductPage');
-    console.log('addProductPage element exists:', !!addProductPage);
-    if (addProductPage) {
-        console.log('addProductPage classes:', addProductPage.className);
-    }
 }
 
 function setupEventListeners() {
@@ -109,6 +95,14 @@ function setupEventListeners() {
     const exportBtn = document.getElementById('exportBtn');
     if (exportBtn) {
         exportBtn.addEventListener('click', handleExport);
+    }
+
+    // Image upload
+    const uploadImageBtn = document.getElementById('uploadImageBtn');
+    const productImageFile = document.getElementById('productImageFile');
+    if (uploadImageBtn && productImageFile) {
+        uploadImageBtn.addEventListener('click', () => productImageFile.click());
+        productImageFile.addEventListener('change', handleImageUpload);
     }
 }
 
@@ -198,8 +192,6 @@ function showDashboard() {
 
 // Navigation functions
 function navigateToPage(page) {
-    console.log('Navigating to page:', page);
-    
     // Update active menu item
     document.querySelectorAll('.menu-item').forEach(item => {
         item.classList.remove('active');
@@ -216,18 +208,11 @@ function navigateToPage(page) {
     // Handle the special case for add-product -> addProductPage
     const pageId = page === 'add-product' ? 'addProductPage' : `${page}Page`;
     const pageElement = pageElements[pageId];
-    console.log('Target page element (from stored reference):', pageElement);
-    console.log('Looking for page ID:', pageId);
     
     if (pageElement) {
-        console.log('Adding active class to page');
         pageElement.classList.add('active');
-        console.log('Page classes after adding active:', pageElement.className);
         updatePageTitle(page);
         loadPageData(page);
-    } else {
-        console.error('Page not found in stored references:', page);
-        console.log('Available stored pages:', Object.keys(pageElements));
     }
 }
 
@@ -480,41 +465,48 @@ function handleCategoryFilter(e) {
 async function handleAddProduct(e) {
     e.preventDefault();
     
-    const formData = new FormData(e.target);
-    const productData = {
-        title: formData.get('title'),
-        description: formData.get('description'),
-        price: formData.get('price'),
-        link: formData.get('link'),
-        category: formData.get('category'),
-        image: formData.get('image') || '🛍️',
-        rank: parseInt(formData.get('rank')) || 0,
-        tags: formData.get('tags') ? formData.get('tags').split(',').map(tag => tag.trim()) : [],
-        isTopPick: formData.get('isTopPick') === 'on',
-        isActive: formData.get('isActive') === 'on'
-    };
+    const formData = new FormData();
+    
+    // Add basic form data
+    formData.append('title', e.target.title.value);
+    formData.append('description', e.target.description.value);
+    formData.append('price', e.target.price.value);
+    formData.append('link', e.target.link.value);
+    formData.append('category', e.target.category.value);
+    formData.append('rank', e.target.rank.value || '0');
+    formData.append('tags', e.target.tags.value);
+    formData.append('isTopPick', e.target.isTopPick.checked);
+    formData.append('isActive', e.target.isActive.checked);
+    
+    // Add image file if selected
+    const imageFile = document.getElementById('productImageFile').files[0];
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
 
     try {
         const response = await fetch(`${API_BASE_URL}/products`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
             },
-            body: JSON.stringify(productData)
+            body: formData
         });
 
         if (response.ok) {
-            e.target.reset();
             alert('Product added successfully!');
-            navigateToPage('products');
+            e.target.reset();
+            // Clear image preview
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imageFileName').textContent = '';
+            loadProducts();
         } else {
             const error = await response.json();
-            alert('Error adding product: ' + error.error);
+            alert(error.error || 'Failed to add product');
         }
     } catch (error) {
         console.error('Error adding product:', error);
-        alert('Network error. Please try again.');
+        alert('Error adding product. Please try again.');
     }
 }
 
@@ -715,6 +707,38 @@ async function handleExport() {
 // Utility functions
 function closeModal() {
     document.getElementById('editModal').style.display = 'none';
+}
+
+// Image upload handler
+function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file (PNG, JPG, GIF)');
+        return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        return;
+    }
+
+    // Show file name
+    const fileName = document.getElementById('imageFileName');
+    fileName.textContent = file.name;
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        previewImg.src = e.target.result;
+        preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
 }
 
 function debounce(func, wait) {

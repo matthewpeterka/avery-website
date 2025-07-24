@@ -14,12 +14,38 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Multer configuration for file uploads
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
+    }
+});
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed!'), false);
+        }
+    }
+});
+
 // Serve static files from the main website (root directory)
 app.use(express.static(path.join(__dirname, '..')));
 app.use('/styles.css', express.static(path.join(__dirname, '../styles.css')));
 app.use('/script.js', express.static(path.join(__dirname, '../script.js')));
 app.use('/products.js', express.static(path.join(__dirname, '../products.js')));
 app.use('/images', express.static(path.join(__dirname, '../images')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/avery-website', {
