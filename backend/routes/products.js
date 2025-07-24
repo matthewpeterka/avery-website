@@ -2,30 +2,26 @@ const express = require('express');
 const Product = require('../models/Product');
 const { auth, adminAuth } = require('../middleware/auth');
 const multer = require('multer');
-const multerS3 = require('multer-s3');
-const AWS = require('aws-sdk');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const path = require('path');
 
 const router = express.Router();
 
 // AWS S3 configuration
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION || 'us-east-1'
+const s3Client = new S3Client({
+    region: process.env.AWS_REGION || 'us-east-1',
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    }
 });
 
-// Multer configuration for S3 uploads
+// Custom multer storage for S3
+const s3Storage = multer.memoryStorage();
+
+// Multer configuration
 const upload = multer({
-    storage: multerS3({
-        s3: s3,
-        bucket: process.env.AWS_S3_BUCKET || 'avery-website-images',
-        key: function (req, file, cb) {
-            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-            const filename = `uploads/${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`;
-            cb(null, filename);
-        }
-    }),
+    storage: s3Storage,
     limits: {
         fileSize: 5 * 1024 * 1024 // 5MB limit
     },
@@ -37,6 +33,22 @@ const upload = multer({
         }
     }
 });
+
+// Helper function to upload to S3
+async function uploadToS3(file) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const filename = `uploads/${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`;
+    
+    const command = new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET || 'avery-website-images',
+        Key: filename,
+        Body: file.buffer,
+        ContentType: file.mimetype
+    });
+    
+    await s3Client.send(command);
+    return `https://${process.env.AWS_S3_BUCKET || 'avery-website-images'}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${filename}`;
+}
 
 // Get all products (public)
 router.get('/', async (req, res) => {
@@ -121,7 +133,7 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
 
         // Handle image upload
         if (req.file) {
-            productData.image = req.file.location; // S3 URL
+            productData.image = await uploadToS3(req.file); // S3 URL
         } else {
             productData.image = '🛍️'; // Default emoji
         }
