@@ -124,7 +124,6 @@ function displayProducts() {
         const shopLink = productCard.querySelector('.product-link');
         shopLink.addEventListener('click', function() {
             // Track product clicks (you can add Google Analytics or other tracking here)
-            console.log(`Product clicked: ${product.title}`);
             
             // Optional: Add a small delay to show the click was registered
             this.style.transform = 'scale(0.95)';

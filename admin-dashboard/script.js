@@ -762,8 +762,6 @@ async function updateTopPicksOrder() {
         rank: index + 1
     }));
 
-    console.log('Sending reorder request:', newOrder);
-
     try {
         const response = await fetch(`${API_BASE_URL}/products/top-picks/reorder`, {
             method: 'PUT',
@@ -774,11 +772,8 @@ async function updateTopPicksOrder() {
             body: JSON.stringify({ order: newOrder })
         });
 
-        console.log('Response status:', response.status);
-
         if (response.ok) {
             const updatedTopPicks = await response.json();
-            console.log('Updated top picks from server:', updatedTopPicks);
             
             // Update the rank numbers displayed
             items.forEach((item, index) => {
@@ -795,17 +790,13 @@ async function updateTopPicksOrder() {
                     allProducts[existingProductIndex] = { ...allProducts[existingProductIndex], ...updatedProduct };
                 }
             });
-            
-            console.log('Top picks order updated successfully');
         } else {
             const error = await response.json();
-            console.error('Failed to update top picks order:', error);
             alert('Failed to update order. Please try again.');
             // Reload to show original order
             loadTopPicks();
         }
     } catch (error) {
-        console.error('Error updating top picks order:', error);
         alert('Network error. Please try again.');
         // Reload to show original order
         loadTopPicks();

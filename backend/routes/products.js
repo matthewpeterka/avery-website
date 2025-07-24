@@ -266,21 +266,17 @@ router.put('/top-picks/reorder', adminAuth, async (req, res) => {
     try {
         const { order } = req.body;
         
-        console.log('Received reorder request:', order);
-        
         if (!Array.isArray(order)) {
             return res.status(400).json({ error: 'Order must be an array' });
         }
 
         // Update each product's rank
         for (const item of order) {
-            console.log(`Updating product ${item.productId} to rank ${item.rank}`);
-            const updatedProduct = await Product.findByIdAndUpdate(
+            await Product.findByIdAndUpdate(
                 item.productId,
                 { rank: item.rank },
                 { new: true }
             );
-            console.log('Updated product:', updatedProduct);
         }
 
         // Return updated top picks
@@ -291,7 +287,6 @@ router.put('/top-picks/reorder', adminAuth, async (req, res) => {
         .sort({ rank: 1 })
         .limit(6);
 
-        console.log('Returning updated top picks:', topPicks);
         res.json(topPicks);
     } catch (error) {
         console.error('Reorder top picks error:', error);
