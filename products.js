@@ -89,9 +89,14 @@ function displayProducts() {
         productCard.className = 'product-card';
         productCard.style.animationDelay = `${index * 0.1}s`;
         
+        // Handle image display - check if it's a URL or emoji
+        const imageContent = product.image.startsWith('/uploads/') || product.image.startsWith('http') 
+            ? `<img src="${product.image.startsWith('/uploads/') ? 'https://avery-website-backend.onrender.com' + product.image : product.image}" alt="${product.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" /><span style="display: none;">🛍️</span>`
+            : `<span>${product.image}</span>`;
+        
         productCard.innerHTML = `
             <div class="product-image">
-                <span>${product.image}</span>
+                ${imageContent}
             </div>
             <div class="product-content">
                 <h3 class="product-title">${product.title}</h3>
