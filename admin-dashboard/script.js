@@ -2,6 +2,9 @@
 const API_BASE_URL = 'https://avery-website-backend.onrender.com/api'; // Deployed backend URL
 const ADMIN_BASE_URL = 'https://avery-website-backend.onrender.com'; // Deployed backend URL
 
+// Global page references
+let pageElements = {};
+
 // State management
 let currentUser = null;
 let currentPage = 1;
@@ -41,6 +44,13 @@ function initializeApp() {
     const allPages = document.querySelectorAll('.page');
     const pageIds = Array.from(allPages).map(p => p.id);
     console.log('Pages available on init:', pageIds);
+    
+    // Store references to all pages
+    const allPages = document.querySelectorAll('.page');
+    allPages.forEach(page => {
+        pageElements[page.id] = page;
+    });
+    console.log('Stored page elements:', Object.keys(pageElements));
     
     // Check if addProductPage exists specifically
     const addProductPage = document.getElementById('addProductPage');
@@ -203,35 +213,20 @@ function navigateToPage(page) {
     // Hide all pages
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
 
-    // Show selected page - use querySelector instead of getElementById
-    const targetPage = document.querySelector(`#${page}Page`);
-    console.log('Target page element:', targetPage);
-    if (targetPage) {
+    // Show selected page - use stored reference
+    const pageElement = pageElements[`${page}Page`];
+    console.log('Target page element (from stored reference):', pageElement);
+    
+    if (pageElement) {
         console.log('Adding active class to page');
-        targetPage.classList.add('active');
-        console.log('Page classes after adding active:', targetPage.className);
+        pageElement.classList.add('active');
+        console.log('Page classes after adding active:', pageElement.className);
         updatePageTitle(page);
         loadPageData(page);
     } else {
-        console.error('Page not found:', page);
-        // Let's check what pages are actually available
-        const allPages = document.querySelectorAll('.page');
-        const pageIds = Array.from(allPages).map(p => p.id);
-        console.log('Available pages:', pageIds);
+        console.error('Page not found in stored references:', page);
+        console.log('Available stored pages:', Object.keys(pageElements));
         console.log('Looking for page ID:', `${page}Page`);
-        
-        // Try to find the page using a different approach
-        const pageElement = Array.from(allPages).find(p => p.id === `${page}Page`);
-        if (pageElement) {
-            console.log('Found page using alternative method:', pageElement);
-            console.log('Page element classes before:', pageElement.className);
-            pageElement.classList.add('active');
-            console.log('Page element classes after:', pageElement.className);
-            updatePageTitle(page);
-            loadPageData(page);
-        } else {
-            console.error('Page not found even with alternative method');
-        }
     }
 }
 
