@@ -323,23 +323,35 @@ function updateCategoryChart(categoryStats) {
     let chartHTML = '<div class="pie-chart-container">';
     chartHTML += '<div class="pie-chart">';
     
-    let currentAngle = 0;
-    categoryStats.forEach((category, index) => {
-        const percentage = Math.round((category.count / total) * 100);
-        const angle = (category.count / total) * 360;
-        const color = colors[index % colors.length];
-        
-        if (angle > 0) {
-            chartHTML += `
-                <div class="pie-slice" style="
-                    background: conic-gradient(${color} 0deg ${angle}deg, transparent ${angle}deg);
-                    transform: rotate(${currentAngle}deg);
-                "></div>
-            `;
-        }
-        
-        currentAngle += angle;
-    });
+    // If only one category or all categories have the same count, show full circle
+    if (categoryStats.length === 1 || categoryStats.every(cat => cat.count === categoryStats[0].count)) {
+        const color = colors[0];
+        chartHTML += `
+            <div class="pie-slice" style="
+                background: ${color};
+                border-radius: 50%;
+            "></div>
+        `;
+    } else {
+        // Multiple categories with different counts - use conic gradient
+        let currentAngle = 0;
+        categoryStats.forEach((category, index) => {
+            const percentage = Math.round((category.count / total) * 100);
+            const angle = (category.count / total) * 360;
+            const color = colors[index % colors.length];
+            
+            if (angle > 0) {
+                chartHTML += `
+                    <div class="pie-slice" style="
+                        background: conic-gradient(${color} 0deg ${angle}deg, transparent ${angle}deg);
+                        transform: rotate(${currentAngle}deg);
+                    "></div>
+                `;
+            }
+            
+            currentAngle += angle;
+        });
+    }
     
     chartHTML += '</div>';
     
