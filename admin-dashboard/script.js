@@ -213,8 +213,11 @@ function navigateToPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
 
     // Show selected page - use stored reference
-    const pageElement = pageElements[`${page}Page`];
+    // Handle the special case for add-product -> addProductPage
+    const pageId = page === 'add-product' ? 'addProductPage' : `${page}Page`;
+    const pageElement = pageElements[pageId];
     console.log('Target page element (from stored reference):', pageElement);
+    console.log('Looking for page ID:', pageId);
     
     if (pageElement) {
         console.log('Adding active class to page');
@@ -225,7 +228,6 @@ function navigateToPage(page) {
     } else {
         console.error('Page not found in stored references:', page);
         console.log('Available stored pages:', Object.keys(pageElements));
-        console.log('Looking for page ID:', `${page}Page`);
     }
 }
 
