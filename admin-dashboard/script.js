@@ -313,20 +313,55 @@ function updateCategoryChart(categoryStats) {
         return;
     }
 
-    // Simple text-based chart
-    let chartHTML = '<div class="category-chart">';
-    categoryStats.forEach(category => {
-        const percentage = Math.round((category.count / categoryStats.reduce((sum, c) => sum + c.count, 0)) * 100);
+    // Calculate total for percentages
+    const total = categoryStats.reduce((sum, c) => sum + c.count, 0);
+    
+    // Generate colors for each category
+    const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#84cc16'];
+    
+    // Create pie chart
+    let chartHTML = '<div class="pie-chart-container">';
+    chartHTML += '<div class="pie-chart">';
+    
+    let currentAngle = 0;
+    categoryStats.forEach((category, index) => {
+        const percentage = Math.round((category.count / total) * 100);
+        const angle = (category.count / total) * 360;
+        const color = colors[index % colors.length];
+        
+        if (angle > 0) {
+            chartHTML += `
+                <div class="pie-slice" style="
+                    background: conic-gradient(${color} 0deg ${angle}deg, transparent ${angle}deg);
+                    transform: rotate(${currentAngle}deg);
+                "></div>
+            `;
+        }
+        
+        currentAngle += angle;
+    });
+    
+    chartHTML += '</div>';
+    
+    // Add legend
+    chartHTML += '<div class="pie-legend">';
+    categoryStats.forEach((category, index) => {
+        const percentage = Math.round((category.count / total) * 100);
+        const color = colors[index % colors.length];
+        const productText = category.count === 1 ? 'product' : 'products';
+        
         chartHTML += `
-            <div class="chart-item">
-                <div class="chart-label">${category._id}</div>
-                <div class="chart-bar">
-                    <div class="chart-fill" style="width: ${percentage}%"></div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${color}"></div>
+                <div class="legend-text">
+                    <span class="legend-label">${category._id}</span>
+                    <span class="legend-value">${category.count} ${productText} (${percentage}%)</span>
                 </div>
-                <div class="chart-value">${category.count} (${percentage}%)</div>
             </div>
         `;
     });
+    chartHTML += '</div>';
+    
     chartHTML += '</div>';
     chartContainer.innerHTML = chartHTML;
 }
