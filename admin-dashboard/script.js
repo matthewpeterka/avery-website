@@ -710,7 +710,9 @@ function setupDragAndDrop() {
 
     function handleDragEnd(e) {
         this.style.opacity = '1';
-        items.forEach(item => {
+        // Get fresh items after DOM changes
+        const currentItems = container.querySelectorAll('.top-pick-item');
+        currentItems.forEach(item => {
             item.classList.remove('over');
         });
     }
@@ -725,7 +727,9 @@ function setupDragAndDrop() {
         e.stopPropagation();
         
         if (draggedItem !== this) {
-            const allItems = [...items];
+            // Get fresh items after DOM changes
+            const currentItems = container.querySelectorAll('.top-pick-item');
+            const allItems = [...currentItems];
             const draggedIndex = allItems.indexOf(draggedItem);
             const droppedIndex = allItems.indexOf(this);
 
@@ -755,6 +759,8 @@ async function updateTopPicksOrder() {
         rank: index + 1
     }));
 
+    console.log('Sending reorder request:', newOrder);
+
     try {
         const response = await fetch(`${API_BASE_URL}/products/top-picks/reorder`, {
             method: 'PUT',
@@ -765,8 +771,11 @@ async function updateTopPicksOrder() {
             body: JSON.stringify({ order: newOrder })
         });
 
+        console.log('Response status:', response.status);
+
         if (response.ok) {
             const updatedTopPicks = await response.json();
+            console.log('Updated top picks from server:', updatedTopPicks);
             
             // Update the rank numbers displayed
             items.forEach((item, index) => {
