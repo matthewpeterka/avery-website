@@ -85,6 +85,25 @@ async function fetchTopPicks() {
     }
 }
 
+// Function to format description with bullet points
+function formatDescription(description) {
+    if (!description) return '';
+    
+    // Split by newlines and filter out empty lines
+    const lines = description.split('\n').filter(line => line.trim());
+    
+    if (lines.length === 0) return '';
+    
+    // If only one line, return as regular paragraph
+    if (lines.length === 1) {
+        return `<p class="product-description">${lines[0]}</p>`;
+    }
+    
+    // Multiple lines - format as bullet points
+    const bulletPoints = lines.map(line => `<li>${line.trim()}</li>`).join('');
+    return `<ul class="product-description-list">${bulletPoints}</ul>`;
+}
+
 // Function to display products on the top picks page
 function displayProducts() {
     const productsGrid = document.getElementById('productsGrid');
@@ -112,84 +131,6 @@ function displayProducts() {
             </div>
             <div class="product-content">
                 <h3 class="product-title">${product.title}</h3>
-                <p class="product-description">${product.description}</p>
+                ${formatDescription(product.description)}
                 <div class="product-price">${product.price}</div>
-                <a href="${product.link}" class="product-link" target="_blank" rel="noopener noreferrer">
-                    Shop Now
-                </a>
-            </div>
-        `;
-
-        // Add click tracking (you can integrate with analytics here)
-        const shopLink = productCard.querySelector('.product-link');
-        shopLink.addEventListener('click', function() {
-            // Track product clicks (you can add Google Analytics or other tracking here)
-            
-            // Optional: Add a small delay to show the click was registered
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = '';
-            }, 150);
-        });
-
-        productsGrid.appendChild(productCard);
-    });
-
-    // Add fade-in animation to product cards
-    const productCards = document.querySelectorAll('.product-card');
-    productCards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
-}
-
-// Function to filter products by category (for future use)
-function filterProducts(category) {
-    const filteredProducts = category === 'all' 
-        ? topPicks 
-        : topPicks.filter(product => product.category.toLowerCase() === category.toLowerCase());
-    
-    // Sort by rank (ascending order - rank 1 first)
-    return filteredProducts.sort((a, b) => (a.rank || 0) - (b.rank || 0));
-}
-
-// Function to search products (for future use)
-function searchProducts(query) {
-    const searchResults = topPicks.filter(product => 
-        product.title.toLowerCase().includes(query.toLowerCase()) ||
-        product.description.toLowerCase().includes(query.toLowerCase()) ||
-        product.category.toLowerCase().includes(query.toLowerCase())
-    );
-    
-    // Sort by rank (ascending order - rank 1 first)
-    return searchResults.sort((a, b) => (a.rank || 0) - (b.rank || 0));
-}
-
-// Initialize products when the page loads
-document.addEventListener('DOMContentLoaded', async function() {
-    // Check if we're on the top picks page
-    if (window.location.pathname.includes('top-picks.html') || 
-        window.location.pathname.endsWith('/') && document.getElementById('productsGrid')) {
-        // Try to fetch from API first, then display
-        await fetchTopPicks();
-        displayProducts();
-    }
-});
-
-
-
-// Export functions for potential future use
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        topPicks,
-        displayProducts,
-        filterProducts,
-        searchProducts
-    };
-} 
+                <a href="${product.link}" class="product-lin

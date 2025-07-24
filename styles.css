@@ -401,6 +401,19 @@ body {
     line-height: 1.6;
 }
 
+.product-description-list {
+    color: #d1d5db;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+    font-size: 0.85rem;
+    padding-left: 1.2rem;
+}
+
+.product-description-list li {
+    margin-bottom: 0.3rem;
+    color: #9ca3af;
+}
+
 .product-price {
     font-size: 1.5rem;
     font-weight: 700;
@@ -886,10 +899,4 @@ body {
     }
 
     .profile-content h2 {
-        font-size: 2rem;
-    }
-
-    .contact-content h2 {
-        font-size: 2rem;
-    }
-} 
+        font-size: 2
