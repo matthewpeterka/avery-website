@@ -89,24 +89,7 @@ app.get('/api/ip', (req, res) => {
     });
 });
 
-// Debug uploads directory
-app.get('/api/debug/uploads', (req, res) => {
-    try {
-        const uploadsPath = path.join(__dirname, 'uploads');
-        const files = fs.readdirSync(uploadsPath);
-        res.json({
-            uploadsPath: uploadsPath,
-            files: files,
-            directoryExists: fs.existsSync(uploadsPath)
-        });
-    } catch (error) {
-        res.json({
-            error: error.message,
-            uploadsPath: path.join(__dirname, 'uploads'),
-            directoryExists: fs.existsSync(path.join(__dirname, 'uploads'))
-        });
-    }
-});
+
 
 // Serve main website routes
 app.get('/', (req, res) => {
