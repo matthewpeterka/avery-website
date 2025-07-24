@@ -25,7 +25,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/avery-web
     sslValidate: false,
     tls: true,
     tlsAllowInvalidCertificates: true,
-    tlsInsecure: true,
     directConnection: false,
     serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
