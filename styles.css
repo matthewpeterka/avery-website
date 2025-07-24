@@ -383,6 +383,7 @@ body {
     color: #9ca3af;
     overflow: hidden;
     border-radius: 12px 12px 0 0;
+    position: relative;
 }
 
 .product-image img {
@@ -393,6 +394,17 @@ body {
     max-width: 100%;
     max-height: 100%;
     background: #4b5563;
+    mix-blend-mode: multiply;
+    filter: contrast(1.1) brightness(1.1) saturate(1.2);
+    backdrop-filter: contrast(1.1);
+}
+
+/* Alternative approach for better background removal */
+.product-image img[src*=".png"],
+.product-image img[src*=".jpg"],
+.product-image img[src*=".jpeg"] {
+    mix-blend-mode: darken;
+    filter: contrast(1.2) brightness(1.05) saturate(1.1);
 }
 
 .product-image span {
