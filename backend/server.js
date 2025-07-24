@@ -21,11 +21,6 @@ app.use(express.static(path.join(__dirname, '..')));
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/avery-website', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    ssl: true,
-    sslValidate: false,
-    tls: true,
-    tlsAllowInvalidCertificates: true,
-    directConnection: false,
     serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
     maxPoolSize: 10,
