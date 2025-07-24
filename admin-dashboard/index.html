@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avery's Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>Avery's Admin</h1>
+                <p>Sign in to manage your shopping guide</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username or Email</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+            <div id="loginError" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="dashboard" style="display: none;">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Avery's Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-page="overview">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Overview</span>
+                </li>
+                <li class="menu-item" data-page="products">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </li>
+                <li class="menu-item" data-page="add-product">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Product</span>
+                </li>
+                <li class="menu-item" data-page="top-picks">
+                    <i class="fas fa-star"></i>
+                    <span>Top Picks</span>
+                </li>
+                <li class="menu-item" data-page="categories">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1 id="pageTitle">Dashboard Overview</h1>
+                </div>
+                <div class="header-right">
+                    <span class="user-info">
+                        Welcome, <span id="userName">Admin</span>
+                    </span>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Overview Page -->
+                <div id="overviewPage" class="page active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalProducts">0</h3>
+                                <p>Total Products</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="activeProducts">0</h3>
+                                <p>Active Products</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="topPicks">0</h3>
+                                <p>Top Picks</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalUsers">0</h3>
+                                <p>Total Users</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="chart-card">
+                            <h3>Products by Category</h3>
+                            <div id="categoryChart" class="chart-container">
+                                <div class="loading">Loading chart...</div>
+                            </div>
+                        </div>
+                        <div class="recent-card">
+                            <h3>Recent Products</h3>
+                            <div id="recentProducts" class="recent-list">
+                                <div class="loading">Loading recent products...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Page -->
+                <div id="productsPage" class="page">
+                    <div class="page-header">
+                        <div class="search-bar">
+                            <input type="text" id="productSearch" placeholder="Search products...">
+                            <button id="searchBtn" class="btn btn-secondary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <div class="page-actions">
+                            <select id="categoryFilter">
+                                <option value="">All Categories</option>
+                            </select>
+                            <button id="exportBtn" class="btn btn-secondary">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="products-table-container">
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAll"></th>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Top Pick</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <tr>
+                                    <td colspan="7" class="loading">Loading products...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo">Page 1 of 1</span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+                <!-- Add Product Page -->
+                <div id="addProductPage" class="page">
+                    <div class="form-container">
+                        <h2>Add New Product</h2>
+                        <form id="addProductForm" class="product-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="productTitle">Product Title *</label>
+                                    <input type="text" id="productTitle" name="title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productCategory">Category *</label>
+                                    <select id="productCategory" name="category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Tech">Tech</option>
+                                        <option value="Beauty">Beauty</option>
+                                        <option value="Wellness">Wellness</option>
+                                        <option value="Home">Home</option>
+                                        <option value="Fashion">Fashion</option>
+                                        <option value="Fitness">Fitness</option>
+                                        <option value="Lifestyle">Lifestyle</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="productDescription">Description *</label>
+                                <textarea id="productDescription" name="description" rows="4" required></textarea>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="productPrice">Price *</label>
+                                    <input type="text" id="productPrice" name="price" placeholder="$XX.XX" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productLink">Product Link *</label>
+                                    <input type="url" id="productLink" name="link" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="productImage">Image (Emoji or URL)</label>
+                                    <input type="text" id="productImage" name="image" placeholder="🛍️">
+                                </div>
+                                <div class="form-group">
+                                    <label for="productRank">Rank</label>
+                                    <input type="number" id="productRank" name="rank" min="0" value="0">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="productTags">Tags (comma-separated)</label>
+                                <input type="text" id="productTags" name="tags" placeholder="tag1, tag2, tag3">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group checkbox-group">
+                                    <label>
+                                        <input type="checkbox" id="isTopPick" name="isTopPick">
+                                        Mark as Top Pick
+                                    </label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <label>
+                                        <input type="checkbox" id="isActive" name="isActive" checked>
+                                        Active Product
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Add Product</button>
+                                <button type="button" id="cancelAdd" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Top Picks Page -->
+                <div id="topPicksPage" class="page">
+                    <div class="page-header">
+                        <h2>Manage Top Picks</h2>
+                        <p>Drag and drop to reorder your top 5 picks</p>
+                    </div>
+                    <div id="topPicksList" class="top-picks-list">
+                        <div class="loading">Loading top picks...</div>
+                    </div>
+                </div>
+
+                <!-- Categories Page -->
+                <div id="categoriesPage" class="page">
+                    <div class="page-header">
+                        <h2>Category Management</h2>
+                    </div>
+                    <div id="categoriesList" class="categories-list">
+                        <div class="loading">Loading categories...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Edit Product -->
+    <div id="editModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Product</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm" class="product-form">
+                    <input type="hidden" id="editProductId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editProductTitle">Product Title *</label>
+                            <input type="text" id="editProductTitle" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductCategory">Category *</label>
+                            <select id="editProductCategory" name="category" required>
+                                <option value="Tech">Tech</option>
+                                <option value="Beauty">Beauty</option>
+                                <option value="Wellness">Wellness</option>
+                                <option value="Home">Home</option>
+                                <option value="Fashion">Fashion</option>
+                                <option value="Fitness">Fitness</option>
+                                <option value="Lifestyle">Lifestyle</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editProductDescription">Description *</label>
+                        <textarea id="editProductDescription" name="description" rows="4" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editProductPrice">Price *</label>
+                            <input type="text" id="editProductPrice" name="price" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductLink">Product Link *</label>
+                            <input type="url" id="editProductLink" name="link" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Update Product</button>
+                        <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

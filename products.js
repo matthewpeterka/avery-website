@@ -1,5 +1,8 @@
-// Avery's Top 5 Product Recommendations
-const topPicks = [
+// API configuration
+const API_BASE_URL = 'http://localhost:3000/api'; // Change this to your deployed backend URL
+
+// Fallback data in case API is not available
+const fallbackTopPicks = [
     {
         id: 1,
         title: "Wireless Bluetooth Headphones",
@@ -46,6 +49,32 @@ const topPicks = [
         category: "Tech"
     }
 ];
+
+// Global variable to store products from API
+let topPicks = [];
+
+// Function to fetch products from API
+async function fetchTopPicks() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/products/top-picks`);
+        if (response.ok) {
+            const data = await response.json();
+            topPicks = data.map((product, index) => ({
+                ...product,
+                id: product._id || index + 1
+            }));
+            return true;
+        } else {
+            console.warn('Failed to fetch from API, using fallback data');
+            topPicks = fallbackTopPicks;
+            return false;
+        }
+    } catch (error) {
+        console.warn('API not available, using fallback data:', error);
+        topPicks = fallbackTopPicks;
+        return false;
+    }
+}
 
 // Function to display products on the top picks page
 function displayProducts() {
@@ -125,10 +154,12 @@ function searchProducts(query) {
 }
 
 // Initialize products when the page loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Check if we're on the top picks page
     if (window.location.pathname.includes('top-picks.html') || 
         window.location.pathname.endsWith('/') && document.getElementById('productsGrid')) {
+        // Try to fetch from API first, then display
+        await fetchTopPicks();
         displayProducts();
     }
 });
