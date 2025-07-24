@@ -67,6 +67,12 @@ function setupEventListeners() {
     if (categoryFilter) {
         categoryFilter.addEventListener('change', handleCategoryFilter);
     }
+    
+    // Select all checkbox
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', handleSelectAll);
+    }
 
     // Pagination
     const prevBtn = document.getElementById('prevPage');
@@ -433,6 +439,38 @@ function displayProducts(products) {
         `;
     });
     tbody.innerHTML = html;
+    
+    // Reset select all checkbox
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+    }
+    
+    // Add event listeners to individual checkboxes
+    const checkboxes = tbody.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectAllState);
+    });
+}
+
+function updateSelectAllState() {
+    const checkboxes = document.querySelectorAll('#productsTableBody input[type="checkbox"]');
+    const selectAllCheckbox = document.getElementById('selectAll');
+    
+    if (!selectAllCheckbox || checkboxes.length === 0) return;
+    
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    
+    if (checkedCount === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    } else if (checkedCount === checkboxes.length) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+    } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+    }
 }
 
 function updatePagination(pagination) {
@@ -477,6 +515,15 @@ function handleCategoryFilter(e) {
         filteredProducts = allProducts;
     }
     displayProducts(filteredProducts);
+}
+
+function handleSelectAll(e) {
+    const isChecked = e.target.checked;
+    const checkboxes = document.querySelectorAll('#productsTableBody input[type="checkbox"]');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+    });
 }
 
 // Product CRUD functions
@@ -830,11 +877,24 @@ async function loadCategories() {
         if (response.ok) {
             const categories = await response.json();
             updateCategoryFilter(categories);
-            displayCategories(categories);
+            
+            // Also load products to get product counts
+            const productsResponse = await fetch(`${API_BASE_URL}/products?limit=1000`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                }
+            });
+            
+            if (productsResponse.ok) {
+                const productsData = await productsResponse.json();
+                displayCategories(categories, productsData.products);
+            } else {
+                displayCategories(categories, []);
+            }
         }
     } catch (error) {
         console.error('Error loading categories:', error);
-        displayCategories([]);
+        displayCategories([], []);
     }
 }
 
@@ -853,7 +913,7 @@ function updateCategoryFilter(categories) {
     });
 }
 
-function displayCategories(categories) {
+function displayCategories(categories, products = []) {
     const container = document.getElementById('categoriesList');
     if (!container) return;
 
@@ -865,7 +925,7 @@ function displayCategories(categories) {
     let html = '<div class="categories-grid">';
     categories.forEach(category => {
         // Get products in this category
-        const categoryProducts = allProducts.filter(p => p.category === category && p.isActive);
+        const categoryProducts = products.filter(p => p.category === category && p.isActive);
         const productCount = categoryProducts.length;
         
         // Create product list HTML
@@ -924,27 +984,41 @@ function filterByCategory(category) {
 // Tags management
 async function loadTags() {
     try {
-        // Extract all unique tags from products
-        const allTags = new Set();
-        allProducts.forEach(product => {
-            if (product.tags && Array.isArray(product.tags)) {
-                product.tags.forEach(tag => {
-                    if (tag.trim()) {
-                        allTags.add(tag.trim());
-                    }
-                });
+        // Load products to extract tags
+        const response = await fetch(`${API_BASE_URL}/products?limit=1000`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
             }
         });
         
-        const tagsArray = Array.from(allTags).sort();
-        displayTags(tagsArray);
+        if (response.ok) {
+            const data = await response.json();
+            const products = data.products || [];
+            
+            // Extract all unique tags from products
+            const allTags = new Set();
+            products.forEach(product => {
+                if (product.tags && Array.isArray(product.tags)) {
+                    product.tags.forEach(tag => {
+                        if (tag.trim()) {
+                            allTags.add(tag.trim());
+                        }
+                    });
+                }
+            });
+            
+            const tagsArray = Array.from(allTags).sort();
+            displayTags(tagsArray, products);
+        } else {
+            displayTags([], []);
+        }
     } catch (error) {
         console.error('Error loading tags:', error);
-        displayTags([]);
+        displayTags([], []);
     }
 }
 
-function displayTags(tags) {
+function displayTags(tags, products = []) {
     const container = document.getElementById('tagsList');
     if (!container) return;
 
@@ -956,7 +1030,7 @@ function displayTags(tags) {
     let html = '<div class="tags-grid">';
     tags.forEach(tag => {
         // Get products with this tag
-        const tagProducts = allProducts.filter(p => 
+        const tagProducts = products.filter(p => 
             p.tags && Array.isArray(p.tags) && 
             p.tags.some(t => t.trim().toLowerCase() === tag.toLowerCase()) && 
             p.isActive
