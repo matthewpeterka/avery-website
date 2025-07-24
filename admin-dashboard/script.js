@@ -40,13 +40,12 @@ function initializeApp() {
     // Event listeners
     setupEventListeners();
     
-    // Check what pages are available on initialization
+    // Check what pages are available on initialization and store references
     const allPages = document.querySelectorAll('.page');
     const pageIds = Array.from(allPages).map(p => p.id);
     console.log('Pages available on init:', pageIds);
     
     // Store references to all pages
-    const allPages = document.querySelectorAll('.page');
     allPages.forEach(page => {
         pageElements[page.id] = page;
     });
