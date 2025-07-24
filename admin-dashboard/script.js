@@ -259,6 +259,9 @@ function loadPageData(page) {
         case 'categories':
             loadCategories();
             break;
+        case 'tags':
+            loadTags();
+            break;
     }
 }
 
@@ -861,8 +864,28 @@ function displayCategories(categories) {
 
     let html = '<div class="categories-grid">';
     categories.forEach(category => {
-        // Count products in this category
-        const productCount = allProducts.filter(p => p.category === category && p.isActive).length;
+        // Get products in this category
+        const categoryProducts = allProducts.filter(p => p.category === category && p.isActive);
+        const productCount = categoryProducts.length;
+        
+        // Create product list HTML
+        let productsHtml = '';
+        if (categoryProducts.length > 0) {
+            productsHtml = '<div class="category-products">';
+            categoryProducts.slice(0, 3).forEach(product => {
+                const displayPrice = product.price && !product.price.startsWith('$') ? `$${product.price}` : product.price;
+                productsHtml += `
+                    <div class="category-product">
+                        <span class="product-title">${product.title}</span>
+                        <span class="product-price">${displayPrice}</span>
+                    </div>
+                `;
+            });
+            if (categoryProducts.length > 3) {
+                productsHtml += `<div class="more-products">+${categoryProducts.length - 3} more</div>`;
+            }
+            productsHtml += '</div>';
+        }
         
         html += `
             <div class="category-card">
@@ -870,9 +893,10 @@ function displayCategories(categories) {
                     <h3>${category}</h3>
                     <span class="product-count">${productCount} products</span>
                 </div>
+                ${productsHtml}
                 <div class="category-actions">
                     <button class="btn btn-secondary" onclick="filterByCategory('${category}')">
-                        View Products
+                        View All Products
                     </button>
                 </div>
             </div>
@@ -894,6 +918,97 @@ function filterByCategory(category) {
             const event = new Event('change');
             categoryFilter.dispatchEvent(event);
         }
+    }, 100);
+}
+
+// Tags management
+async function loadTags() {
+    try {
+        // Extract all unique tags from products
+        const allTags = new Set();
+        allProducts.forEach(product => {
+            if (product.tags && Array.isArray(product.tags)) {
+                product.tags.forEach(tag => {
+                    if (tag.trim()) {
+                        allTags.add(tag.trim());
+                    }
+                });
+            }
+        });
+        
+        const tagsArray = Array.from(allTags).sort();
+        displayTags(tagsArray);
+    } catch (error) {
+        console.error('Error loading tags:', error);
+        displayTags([]);
+    }
+}
+
+function displayTags(tags) {
+    const container = document.getElementById('tagsList');
+    if (!container) return;
+
+    if (tags.length === 0) {
+        container.innerHTML = '<div class="empty-state">No tags found</div>';
+        return;
+    }
+
+    let html = '<div class="tags-grid">';
+    tags.forEach(tag => {
+        // Get products with this tag
+        const tagProducts = allProducts.filter(p => 
+            p.tags && Array.isArray(p.tags) && 
+            p.tags.some(t => t.trim().toLowerCase() === tag.toLowerCase()) && 
+            p.isActive
+        );
+        const productCount = tagProducts.length;
+        
+        // Create product list HTML
+        let productsHtml = '';
+        if (tagProducts.length > 0) {
+            productsHtml = '<div class="tag-products">';
+            tagProducts.slice(0, 3).forEach(product => {
+                const displayPrice = product.price && !product.price.startsWith('$') ? `$${product.price}` : product.price;
+                productsHtml += `
+                    <div class="tag-product">
+                        <span class="product-title">${product.title}</span>
+                        <span class="product-price">${displayPrice}</span>
+                    </div>
+                `;
+            });
+            if (tagProducts.length > 3) {
+                productsHtml += `<div class="more-products">+${tagProducts.length - 3} more</div>`;
+            }
+            productsHtml += '</div>';
+        }
+        
+        html += `
+            <div class="tag-card">
+                <div class="tag-header">
+                    <h3>#${tag}</h3>
+                    <span class="product-count">${productCount} products</span>
+                </div>
+                ${productsHtml}
+                <div class="tag-actions">
+                    <button class="btn btn-secondary" onclick="filterByTag('${tag}')">
+                        View All Products
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+function filterByTag(tag) {
+    // Navigate to products page and filter by tag
+    navigateToPage('products');
+    setTimeout(() => {
+        // For now, we'll just show all products since we don't have tag filtering in the products page yet
+        // You can implement tag filtering in the products page if needed
+        alert(`Tag filtering for "${tag}" will be implemented in the products page`);
     }, 100);
 }
 

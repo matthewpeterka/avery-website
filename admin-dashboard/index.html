@@ -35,9 +35,9 @@
     <div id="dashboard" class="dashboard" style="display: none;">
         <!-- Sidebar -->
         <nav class="sidebar">
-            <div class="sidebar-header">
-                <h2>Avery's Admin</h2>
-            </div>
+                    <div class="sidebar-header">
+            <h2>Dashboard</h2>
+        </div>
             <ul class="sidebar-menu">
                 <li class="menu-item active" data-page="overview">
                     <i class="fas fa-chart-line"></i>
@@ -58,6 +58,10 @@
                 <li class="menu-item" data-page="categories">
                     <i class="fas fa-tags"></i>
                     <span>Categories</span>
+                </li>
+                <li class="menu-item" data-page="tags">
+                    <i class="fas fa-hashtag"></i>
+                    <span>Tags</span>
                 </li>
             </ul>
             <div class="sidebar-footer">
@@ -295,6 +299,16 @@
                     </div>
                     <div id="categoriesList" class="categories-list">
                         <div class="loading">Loading categories...</div>
+                    </div>
+                </div>
+
+                <!-- Tags Page -->
+                <div id="tagsPage" class="page">
+                    <div class="page-header">
+                        <h2>Tag Management</h2>
+                    </div>
+                    <div id="tagsList" class="tags-list">
+                        <div class="loading">Loading tags...</div>
                     </div>
                 </div>
             </div>
