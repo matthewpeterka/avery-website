@@ -242,6 +242,39 @@ router.patch('/:id/rank', adminAuth, async (req, res) => {
     }
 });
 
+// Reorder top picks (admin only)
+router.put('/top-picks/reorder', adminAuth, async (req, res) => {
+    try {
+        const { order } = req.body;
+        
+        if (!Array.isArray(order)) {
+            return res.status(400).json({ error: 'Order must be an array' });
+        }
+
+        // Update each product's rank
+        for (const item of order) {
+            await Product.findByIdAndUpdate(
+                item.productId,
+                { rank: item.rank },
+                { new: true }
+            );
+        }
+
+        // Return updated top picks
+        const topPicks = await Product.find({ 
+            isActive: true, 
+            isTopPick: true 
+        })
+        .sort({ rank: 1 })
+        .limit(5);
+
+        res.json(topPicks);
+    } catch (error) {
+        console.error('Reorder top picks error:', error);
+        res.status(500).json({ error: 'Failed to reorder top picks' });
+    }
+});
+
 // Get categories (public)
 router.get('/categories/list', async (req, res) => {
     try {

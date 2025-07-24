@@ -650,12 +650,15 @@ function displayTopPicks(topPicks) {
 
     let html = '';
     topPicks.forEach((product, index) => {
+        // Add $ to price if it doesn't already have one
+        const displayPrice = product.price && !product.price.startsWith('$') ? `$${product.price}` : product.price;
+        
         html += `
-            <div class="top-pick-item" data-id="${product._id}">
+            <div class="top-pick-item" data-id="${product._id}" draggable="true">
                 <div class="pick-rank">#${index + 1}</div>
                 <div class="pick-content">
                     <h4>${product.title}</h4>
-                    <p>${product.category} • ${product.price}</p>
+                    <p>${product.category} • ${displayPrice}</p>
                 </div>
                 <div class="pick-actions">
                     <button class="btn btn-secondary" onclick="toggleTopPick('${product._id}')">
@@ -666,6 +669,109 @@ function displayTopPicks(topPicks) {
         `;
     });
     container.innerHTML = html;
+    
+    // Setup drag and drop functionality
+    setupDragAndDrop();
+}
+
+// Drag and drop functionality for top picks
+function setupDragAndDrop() {
+    const container = document.getElementById('topPicksList');
+    if (!container) return;
+
+    let draggedItem = null;
+
+    // Add event listeners to all draggable items
+    const items = container.querySelectorAll('.top-pick-item');
+    items.forEach(item => {
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragend', handleDragEnd);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('drop', handleDrop);
+    });
+
+    function handleDragStart(e) {
+        draggedItem = this;
+        this.style.opacity = '0.5';
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.outerHTML);
+    }
+
+    function handleDragEnd(e) {
+        this.style.opacity = '1';
+        items.forEach(item => {
+            item.classList.remove('over');
+        });
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        
+        if (draggedItem !== this) {
+            const allItems = [...items];
+            const draggedIndex = allItems.indexOf(draggedItem);
+            const droppedIndex = allItems.indexOf(this);
+
+            // Reorder the items
+            if (draggedIndex < droppedIndex) {
+                this.parentNode.insertBefore(draggedItem, this.nextSibling);
+            } else {
+                this.parentNode.insertBefore(draggedItem, this);
+            }
+
+            // Update the database with new order
+            updateTopPicksOrder();
+        }
+
+        return false;
+    }
+}
+
+// Update top picks order in database
+async function updateTopPicksOrder() {
+    const container = document.getElementById('topPicksList');
+    if (!container) return;
+
+    const items = container.querySelectorAll('.top-pick-item');
+    const newOrder = Array.from(items).map((item, index) => ({
+        productId: item.dataset.id,
+        rank: index + 1
+    }));
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/products/top-picks/reorder`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+            },
+            body: JSON.stringify({ order: newOrder })
+        });
+
+        if (response.ok) {
+            // Update the rank numbers displayed
+            items.forEach((item, index) => {
+                const rankElement = item.querySelector('.pick-rank');
+                if (rankElement) {
+                    rankElement.textContent = `#${index + 1}`;
+                }
+            });
+        } else {
+            console.error('Failed to update top picks order');
+            // Reload to show original order
+            loadTopPicks();
+        }
+    } catch (error) {
+        console.error('Error updating top picks order:', error);
+        // Reload to show original order
+        loadTopPicks();
+    }
 }
 
 async function toggleTopPick(productId) {
