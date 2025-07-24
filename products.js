@@ -104,6 +104,22 @@ function formatDescription(description) {
     return `<ul class="product-description-list">${bulletPoints}</ul>`;
 }
 
+// Function to format price with dollar sign
+function formatPrice(price) {
+    if (!price) return '';
+    
+    // Remove any existing dollar signs and clean the price
+    let cleanPrice = price.toString().replace(/[$,]/g, '').trim();
+    
+    // If it's just a number, add dollar sign
+    if (/^\d+(\.\d{1,2})?$/.test(cleanPrice)) {
+        return `$${cleanPrice}`;
+    }
+    
+    // If it already has a dollar sign or other formatting, return as is
+    return price;
+}
+
 // Function to display products on the top picks page
 function displayProducts() {
     const productsGrid = document.getElementById('productsGrid');
@@ -129,10 +145,10 @@ function displayProducts() {
             <div class="product-image">
                 ${imageContent}
             </div>
-            <div class="product-content">
+                            <div class="product-content">
                 <h3 class="product-title">${product.title}</h3>
                 ${formatDescription(product.description)}
-                <div class="product-price">${product.price}</div>
+                <div class="product-price">${formatPrice(product.price)}</div>
                 <a href="${product.link}" class="product-link" target="_blank" rel="noopener noreferrer">
                     Shop Now
                 </a>
