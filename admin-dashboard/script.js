@@ -212,6 +212,9 @@ function loadPageData(page) {
         case 'products':
             loadProducts();
             break;
+        case 'add-product':
+            // Add Product page doesn't need to load data
+            break;
         case 'top-picks':
             loadTopPicks();
             break;
